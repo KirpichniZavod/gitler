@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎭 Mafia Game - Лобби</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #ffffff;
+            overflow-x: hidden;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-details h3 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+
+        .user-stats {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .coins {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Лобби */
+        .rooms-list {
+            margin-bottom: 20px;
+        }
+
+        .room-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .room-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .room-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .room-status {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .room-status.waiting {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+
+        .room-status.playing {
+            background: rgba(255, 152, 0, 0.3);
+            color: #FF9800;
+        }
+
+        .room-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .create-room-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .create-room-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        /* Профиль */
+        .profile-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .avatar-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .avatar-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .avatar-option.current {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.3);
+        }
+
+        /* Магазин */
+        .shop-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .shop-category {
+            margin-bottom: 25px;
+        }
+
+        .shop-category h3 {
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+
+        .effects-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .effect-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .effect-card:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .effect-card.owned {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .effect-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .effect-price {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .buy-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .buy-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+        }
+
+        /* Игровая комната */
+        .room-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .room-header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .leave-room-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(244, 67, 54, 0.8);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .players-list {
+            margin-bottom: 20px;
+        }
+
+        .player-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .player-avatar {
+            font-size: 20px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-weight: bold;
+        }
+
+        .player-role {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        .creator-badge {
+            background: rgba(255, 193, 7, 0.3);
+            color: #FFC107;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+
+        .chat-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-sender {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 2px;
+        }
+
+        .chat-text {
+            font-size: 0.9em;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .send-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            cursor: pointer;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .start-game-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .start-game-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .start-game-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+        }
+
+        /* Игровой процесс */
+        .game-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .game-phase {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .phase-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .phase-timer {
+            font-size: 1.2em;
+            color: #FF9800;
+        }
+
+        .role-info {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .role-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .role-description {
+            opacity: 0.9;
+        }
+
+        .action-buttons {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+        }
+
+        .voting-section {
+            background: rgba(255, 152, 0, 0.2);
+            border: 1px solid rgba(255, 152, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .voting-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .vote-buttons {
+            display: grid;
+            gap: 8px;
+        }
+
+        .vote-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .vote-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .vote-btn.voted {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+        }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 350px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid transparent;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+
+        .notification.error {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+
+        .notification.info {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+        }
+
+        /* Загрузка */
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .navigation {
+                flex-wrap: wrap;
+            }
+            
+            .nav-btn {
+                min-width: 80px;
+                font-size: 0.9em;
+            }
+            
+            .effects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Анимации эффектов никнейма */
+        .nickname-rainbow {
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow 2s ease-in-out infinite;
+        }
+
+        @keyframes rainbow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .nickname-glow {
+            text-shadow: 0 0 10px #4CAF50, 0 0 20px #4CAF50, 0 0 30px #4CAF50;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #4CAF50, 0 0 20px #4CAF50, 0 0 30px #4CAF50; }
+            to { text-shadow: 0 0 20px #4CAF50, 0 0 30px #4CAF50, 0 0 40px #4CAF50; }
+        }
+
+        .nickname-shake {
+            animation: shake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="header">
+            <h1>🎭 Mafia Game</h1>
+        </div>
+
+        <!-- Информация о пользователе -->
+        <div class="user-info">
+            <div class="user-profile">
+                <div class="user-avatar" id="user-avatar">👤</div>
+                <div class="user-details">
+                    <h3 id="user-nickname">Загрузка...</h3>
+                    <div class="user-stats">
+                        <span id="user-games">Игр: 0</span> | 
+                        <span id="user-wins">Побед: 0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="coins">
+                <span>💰</span>
+                <span id="user-coins">0</span>
+            </div>
+        </div>
+
+        <!-- Навигация -->
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('lobby')">Лобби</button>
+            <button class="nav-btn" onclick="showSection('profile')">Профиль</button>
+            <button class="nav-btn" onclick="showSection('shop')">Магазин</button>
+        </div>
+
+        <!-- Секция лобби -->
+        <div id="lobby-section" class="section active">
+            <button class="create-room-btn" onclick="showCreateRoomModal()">
+                ➕ Создать комнату
+            </button>
+            
+            <div class="rooms-list" id="rooms-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Загрузка комнат...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Секция профиля -->
+        <div id="profile-section" class="section">
+            <div class="profile-section">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profile-avatar">👤</div>
+                    <h2 id="profile-nickname">Загрузка...</h2>
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="profile-games">0</div>
+                        <div class="stat-label">Игр сыграно</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="profile-wins">0</div>
+                        <div class="stat-label">Побед</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="profile-survived">0</div>
+                        <div class="stat-label">Выжил</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="profile-winrate">0%</div>
+                        <div class="stat-label">Винрейт</div>
+                    </div>
+                </div>
+
+                <h3>Сменить аватар:</h3>
+                <div class="avatar-grid" id="avatar-grid">
+                    <!-- Аватары будут добавлены через JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Секция магазина -->
+        <div id="shop-section" class="section">
+            <div class="shop-section">
+                <h2>🛒 Магазин эффектов</h2>
+                
+                <div class="shop-category">
+                    <h3>✨ Эффекты никнейма</h3>
+                    <div class="effects-grid" id="nickname-effects">
+                        <!-- Эффекты будут добавлены через JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Секция игровой комнаты -->
+        <div id="room-section" class="section">
+            <div class="room-section">
+                <div class="room-header-info">
+                    <h2 id="room-name">Комната</h2>
+                    <button class="leave-room-btn" onclick="leaveRoom()">Выйти</button>
+                </div>
+
+                <div class="players-list">
+                    <h3>Игроки (<span id="players-count">0</span>/<span id="max-players">10</span>):</h3>
+                    <div id="players-container">
+                        <!-- Игроки будут добавлены через JS -->
+                    </div>
+                </div>
+
+                <div class="game-controls" id="game-controls">
+                    <button class="start-game-btn" id="start-game-btn" onclick="startGame()">
+                        🎮 Начать игру
+                    </button>
+                </div>
+            </div>
+
+            <!-- Чат -->
+            <div class="chat-section">
+                <h3>💬 Чат</h3>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Сообщения будут добавлены через JS -->
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chat-input" placeholder="Введите сообщение..." maxlength="200">
+                    <button class="send-btn" onclick="sendChatMessage()">📤</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Секция игрового процесса -->
+        <div id="game-section" class="section">
+            <div class="game-section">
+                <div class="game-phase" id="game-phase">
+                    <div class="phase-title" id="phase-title">Ожидание...</div>
+                    <div class="phase-timer" id="phase-timer">00:00</div>
+                </div>
+
+                <div class="role-info" id="role-info" style="display: none;">
+                    <div class="role-title" id="role-title">Ваша роль</div>
+                    <div class="role-description" id="role-description">Описание роли</div>
+                </div>
+
+                <div class="action-buttons" id="action-buttons">
+                    <!-- Кнопки действий будут добавлены через JS -->
+                </div>
+
+                <div class="voting-section" id="voting-section" style="display: none;">
+                    <div class="voting-title">🗳️ Голосование</div>
+                    <div class="vote-buttons" id="vote-buttons">
+                        <!-- Кнопки голосования будут добавлены через JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Чат игры -->
+            <div class="chat-section">
+                <h3>💬 Игровой чат</h3>
+                <div class="chat-messages" id="game-chat-messages">
+                    <!-- Сообщения будут добавлены через JS -->
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="game-chat-input" placeholder="Введите сообщение..." maxlength="200">
+                    <button class="send-btn" onclick="sendGameChatMessage()">📤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно создания комнаты -->
+    <div class="modal" id="create-room-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Создать комнату</h2>
+            </div>
+            
+            <div class="form-group">
+                <label for="room-name-input">Название комнаты:</label>
+                <input type="text" id="room-name-input" placeholder="Введите название" maxlength="30">
+            </div>
+            
+            <div class="form-group">
+                <label for="min-players-input">Минимум игроков:</label>
+                <select id="min-players-input">
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="max-players-input">Максимум игроков:</label>
+                <select id="max-players-input">
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10" selected>10</option>
+                    <option value="12">12</option>
+                    <option value="15">15</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="room-password-input">Пароль (необязательно):</label>
+                <input type="password" id="room-password-input" placeholder="Оставьте пустым для открытой комнаты" maxlength="20">
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" onclick="hideCreateRoomModal()">Отмена</button>
+                <button class="modal-btn modal-btn-primary" onclick="createRoom()">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно входа в комнату с паролем -->
+    <div class="modal" id="join-room-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Вход в комнату</h2>
+                <p id="join-room-name">Название комнаты</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="join-room-password">Пароль:</label>
+                <input type="password" id="join-room-password" placeholder="Введите пароль" maxlength="20">
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" onclick="hideJoinRoomModal()">Отмена</button>
+                <button class="modal-btn modal-btn-primary" onclick="joinRoomWithPassword()">Войти</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let currentUser = null;
+        let currentRoom = null;
+        let currentSection = 'lobby';
+        let selectedRoomId = null;
+        let gameState = null;
+        let userRole = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+
+        // WebSocket URL - ваш сервер Анубиса! 🐺⚱️
+        const WS_URL = 'wss://gitler.onrender.com';
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎮 Инициализация игрового лобби...');
+            console.log('🙏 Анубис, направь нас к победе!');
+            
+            // Подключение к серверу
+            connectToServer();
+            
+            // Настройка обработчиков
+            setupEventHandlers();
+            
+            // Инициализация магазина и профиля
+            initializeShop();
+            initializeProfile();
+        });
+
+        function connectToServer() {
+            console.log('🔌 Подключение к WebSocket серверу Анубиса...');
+            console.log('🔗 WebSocket URL:', WS_URL);
+
+            try {
+                ws = new WebSocket(WS_URL);
+                
+                ws.onopen = function(event) {
+                    console.log('✅ WebSocket подключен к серверу Анубиса!');
+                    console.log('🎉 Анубис благословил наше соединение!');
+                    reconnectAttempts = 0;
+                    
+                    // Автоматический вход если есть сохраненные данные
+                    const savedNickname = localStorage.getItem('mafia_nickname');
+                    const savedPassword = localStorage.getItem('mafia_password');
+                    
+                    if (savedNickname && savedPassword) {
+                        console.log('🔄 Автоматический вход для:', savedNickname);
+                        sendMessage({
+                            type: 'login',
+                            nickname: savedNickname,
+                            password: savedPassword,
+                            deviceId: getDeviceId(),
+                            userAgent: navigator.userAgent,
+                            ip: 'unknown'
+                        });
+                    } else {
+                        // Если нет сохраненных данных, возвращаемся к авторизации
+                        window.location.href = 'index.html';
+                    }
+                };
+
+                ws.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('📨 Получено сообщение от Анубиса:', data);
+                        handleServerMessage(data);
+                    } catch (error) {
+                        console.error('❌ Ошибка парсинга сообщения:', error);
+                    }
+                };
+
+                ws.onclose = function(event) {
+                    console.log('🔌 WebSocket соединение с Анубисом закрыто:', event.code, event.reason);
+                    handleDisconnect();
+                };
+
+                ws.onerror = function(error) {
+                    console.error('❌ WebSocket ошибка:', error);
+                    showNotification('Ошибка подключения к серверу Анубиса', 'error');
+                };
+
+            } catch (error) {
+                console.error('❌ Ошибка создания WebSocket:', error);
+                showNotification('Не удалось подключиться к серверу', 'error');
+            }
+        }
+
+        function handleDisconnect() {
+            if (reconnectAttempts < maxReconnectAttempts) {
+                reconnectAttempts++;
+                console.log(`🔄 Попытка переподключения к Анубису ${reconnectAttempts}/${maxReconnectAttempts}`);
+                showNotification(`Переподключение... (${reconnectAttempts}/${maxReconnectAttempts})`, 'info');
+                
+                setTimeout(() => {
+                    connectToServer();
+                }, 2000 * reconnectAttempts);
+            } else {
+                showNotification('Потеряно соединение с сервером Анубиса', 'error');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3000);
+            }
+        }
+
+        function handleServerMessage(data) {
+            switch (data.type) {
+                case 'connected':
+                    console.log('🎉 Подключение к Анубису установлено');
+                    break;
+
+                case 'loginSuccess':
+                    console.log('✅ Успешный вход через Анубиса:', data.user);
+                    currentUser = data.user;
+                    updateUserInfo();
+                    
+                    // Сохраняем данные для автовхода
+                    localStorage.setItem('mafia_nickname', data.user.nickname);
+                    // Пароль не сохраняем в localStorage по соображениям безопасности
+                    
+                    // Запрашиваем список комнат
+                    sendMessage({ type: 'getRooms' });
+                    break;
+
+                case 'rooms':
+                    console.log('📋 Получен список комнат от Анубиса:', data.rooms);
+                    updateRoomsList(data.rooms);
+                    break;
+
+                case 'roomJoined':
+                    console.log('🏠 Присоединились к комнате через Анубиса:', data.room);
+                    currentRoom = data.room;
+                    showRoomSection();
+                    updateRoomInfo();
+                    break;
+
+                case 'roomUpdated':
+                    console.log('🔄 Обновление комнаты от Анубиса:', data.room);
+                    if (currentRoom && currentRoom.id === data.room.id) {
+                        currentRoom = data.room;
+                        updateRoomInfo();
+                    }
+                    break;
+
+                case 'chatMessage':
+                    console.log('💬 Новое сообщение чата от Анубиса:', data);
+                    addChatMessage(data);
+                    break;
+
+                case 'gameStarted':
+                    console.log('🎮 Игра началась под покровительством Анубиса:', data.room);
+                    currentRoom = data.room;
+                    gameState = data.room.game;
+                    showGameSection();
+                    break;
+
+                case 'roleAssigned':
+                    console.log('🎭 Анубис назначил роль:', data.role);
+                    userRole = data.role;
+                    updateRoleInfo();
+                    break;
+
+                case 'gameUpdate':
+                    console.log('🔄 Обновление игры от Анубиса:', data.game);
+                    gameState = data.game;
+                    updateGameState();
+                    break;
+
+                case 'gameEnded':
+                    console.log('🏁 Игра завершена по воле Анубиса:', data);
+                    currentRoom = data.room;
+                    gameState = null;
+                    userRole = null;
+                    showRoomSection();
+                    showNotification('Игра завершена!', 'info');
+                    break;
+
+                case 'userUpdated':
+                    console.log('👤 Обновление пользователя от Анубиса:', data.user);
+                    currentUser = { ...currentUser, ...data.user };
+                    updateUserInfo();
+                    break;
+
+                case 'avatarUpdated':
+                    console.log('🎨 Аватар обновлен Анубисом:', data.avatar);
+                    currentUser.avatar = data.avatar;
+                    updateUserInfo();
+                    showNotification('Аватар обновлен!', 'success');
+                    break;
+
+                case 'effectBought':
+                    console.log('✨ Эффект куплен через Анубиса:', data);
+                    currentUser.coins = data.coins;
+                    currentUser.nickname_effects = data.nickname_effects;
+                    updateUserInfo();
+                    updateShop();
+                    showNotification(data.message, 'success');
+                    break;
+
+                case 'autoStartTimer':
+                    console.log('⏰ Автостарт таймер от Анубиса:', data);
+                    showAutoStartTimer(data.timeLeft, data.reason);
+                    break;
+
+                case 'autoStartCancelled':
+                    console.log('❌ Автостарт отменен Анубисом');
+                    hideAutoStartTimer();
+                    break;
+
+                case 'clearChat':
+                    console.log('🧹 Очистка чата по приказу Анубиса');
+                    clearChat();
+                    break;
+
+                case 'error':
+                    console.error('❌ Ошибка сервера Анубиса:', data.message);
+                    showNotification(data.message, 'error');
+                    break;
+
+                case 'pong':
+                    console.log('🏓 Pong получен от Анубиса');
+                    break;
+
+                default:
+                    console.log('📨 Неизвестное сообщение от Анубиса:', data);
+            }
+        }
+
+        function sendMessage(message) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(message));
+                console.log('📤 Отправлено Анубису:', message);
+            } else {
+                console.error('❌ WebSocket не подключен к Анубису');
+                showNotification('Нет соединения с сервером', 'error');
+            }
+        }
+
+        function setupEventHandlers() {
+            // Enter для чата комнаты
+            document.getElementById('chat-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
+
+            // Enter для игрового чата
+            document.getElementById('game-chat-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendGameChatMessage();
+                }
+            });
+
+            // Enter для модальных окон
+            document.getElementById('join-room-password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    joinRoomWithPassword();
+                }
+            });
+        }
+
+        function getDeviceId() {
+            let deviceId = localStorage.getItem('mafia_device_id');
+            if (!deviceId) {
+                deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('mafia_device_id', deviceId);
+            }
+            return deviceId;
+        }
+
+        // UI функции
+        function showSection(sectionName) {
+            // Скрываем все секции
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+
+            // Убираем активный класс с кнопок навигации
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Показываем нужную секцию
+            document.getElementById(sectionName + '-section').classList.add('active');
+            
+            // Активируем соответствующую кнопку навигации
+            const activeButton = Array.from(navButtons).find(btn => 
+                btn.textContent.toLowerCase().includes(sectionName === 'lobby' ? 'лобби' : 
+                sectionName === 'profile' ? 'профиль' : 'магазин'));
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+
+            currentSection = sectionName;
+
+            // Обновляем данные при переходе в секцию
+            if (sectionName === 'lobby') {
+                sendMessage({ type: 'getRooms' });
+            } else if (sectionName === 'shop') {
+                updateShop();
+            }
+        }
+
+        function showRoomSection() {
+            // Скрываем все секции
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+
+            // Показываем секцию комнаты
+            document.getElementById('room-section').classList.add('active');
+            currentSection = 'room';
+        }
+
+        function showGameSection() {
+            // Скрываем все секции
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+
+            // Показываем секцию игры
+            document.getElementById('game-section').classList.add('active');
+            currentSection = 'game';
+        }
+
+        function updateUserInfo() {
+            if (!currentUser) return;
+
+            document.getElementById('user-avatar').textContent = currentUser.avatar;
+            document.getElementById('user-nickname').textContent = currentUser.nickname;
+            document.getElementById('user-games').textContent = `Игр: ${currentUser.games_played}`;
+            document.getElementById('user-wins').textContent = `Побед: ${currentUser.games_won}`;
+            document.getElementById('user-coins').textContent = currentUser.coins;
+
+            // Обновляем профиль
+            document.getElementById('profile-avatar').textContent = currentUser.avatar;
+            document.getElementById('profile-nickname').textContent = currentUser.nickname;
+            document.getElementById('profile-games').textContent = currentUser.games_played;
+            document.getElementById('profile-wins').textContent = currentUser.games_won;
+            document.getElementById('profile-survived').textContent = currentUser.games_survived;
+            
+            const winrate = currentUser.games_played > 0 ? 
+                Math.round((currentUser.games_won / currentUser.games_played) * 100) : 0;
+            document.getElementById('profile-winrate').textContent = winrate + '%';
+
+            // Применяем эффекты к никнейму
+            applyNicknameEffects();
+        }
+
+        function applyNicknameEffects() {
+            if (!currentUser || !currentUser.nickname_effects) return;
+
+            const nicknameElements = document.querySelectorAll('#user-nickname, #profile-nickname');
+            
+            nicknameElements.forEach(element => {
+                // Очищаем предыдущие эффекты
+                element.className = '';
+                
+                // Применяем эффекты
+                currentUser.nickname_effects.forEach(effect => {
+                    element.classList.add(`nickname-${effect}`);
+                });
+            });
+        }
+
+        function updateRoomsList(rooms) {
+            const roomsList = document.getElementById('rooms-list');
+            
+            if (rooms.length === 0) {
+                roomsList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; opacity: 0.6;">
+                        <h3>🏠 Нет активных комнат</h3>
+                        <p>Создайте первую комнату!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            roomsList.innerHTML = rooms.map(room => `
+                <div class="room-card" onclick="joinRoom('${room.id}', ${room.hasPassword})">
+                    <div class="room-header">
+                        <div class="room-name">${room.name}</div>
+                        <div class="room-status ${room.status}">${room.status === 'waiting' ? 'Ожидание' : 'Играют'}</div>
+                    </div>
+                    <div class="room-info">
+                        <span>👥 ${room.players}/${room.maxPlayers}</span>
+                        <span>👑 ${room.creator}</span>
+                        <span>${room.hasPassword ? '🔒' : '🔓'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateRoomInfo() {
+            if (!currentRoom) return;
+
+            document.getElementById('room-name').textContent = currentRoom.name;
+            document.getElementById('players-count').textContent = currentRoom.players.length;
+            document.getElementById('max-players').textContent = currentRoom.maxPlayers;
+
+            // Обновляем список игроков
+            const playersContainer = document.getElementById('players-container');
+            playersContainer.innerHTML = currentRoom.players.map(player => `
+                <div class="player-card">
+                    <div class="player-avatar">${player.avatar}</div>
+                    <div class="player-info">
+                        <div class="player-name">
+                            ${player.nickname}
+                            ${player.isCreator ? '<span class="creator-badge">Создатель</span>' : ''}
+                            ${player.isBot ? '<span class="creator-badge" style="background: rgba(33, 150, 243, 0.3); color: #2196F3;">Бот</span>' : ''}
+                        </div>
+                        ${player.role && currentRoom.status === 'finished' ? 
+                            `<div class="player-role">Роль: ${getRoleDisplayName(player.role)}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            // Обновляем кнопку старта игры
+            const startBtn = document.getElementById('start-game-btn');
+            const isCreator = currentUser && currentRoom.creator === currentUser.nickname;
+            const canStart = currentRoom.players.length >= currentRoom.minPlayers && currentRoom.status === 'waiting';
+            
+            startBtn.disabled = !isCreator || !canStart;
+            startBtn.textContent = isCreator ? 
+                (canStart ? '🎮 Начать игру' : `Нужно минимум ${currentRoom.minPlayers} игроков`) :
+                'Только создатель может начать игру';
+
+            // Обновляем чат
+            updateRoomChat();
+        }
+
+        function updateRoomChat() {
+            if (!currentRoom || !currentRoom.messages) return;
+
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = currentRoom.messages.map(msg => `
+                <div class="chat-message">
+                    <div class="chat-sender">${msg.sender}</div>
+                    <div class="chat-text">${msg.message}</div>
+                </div>
+            `).join('');
+
+            // Автоскролл вниз
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addChatMessage(messageData) {
+            const isGameChat = currentSection === 'game';
+            const chatMessages = document.getElementById(isGameChat ? 'game-chat-messages' : 'chat-messages');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message';
+            messageDiv.innerHTML = `
+                <div class="chat-sender">${messageData.sender}</div>
+                <div class="chat-text">${messageData.message}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function clearChat() {
+            document.getElementById('chat-messages').innerHTML = '';
+            document.getElementById('game-chat-messages').innerHTML = '';
+        }
+
+        function updateGameState() {
+            if (!gameState) return;
+
+            // Обновляем фазу игры
+            document.getElementById('phase-title').textContent = getPhaseDisplayName(gameState.phase);
+            document.getElementById('phase-timer').textContent = formatTime(gameState.timeLeft);
+
+            // Обновляем последнее действие
+            if (gameState.lastAction) {
+                addChatMessage({
+                    sender: 'Анубис',
+                    message: gameState.lastAction
+                });
+            }
+
+            // Обновляем кнопки действий
+            updateActionButtons();
+        }
+
+        function updateRoleInfo() {
+            if (!userRole) return;
+
+            const roleInfo = document.getElementById('role-info');
+            const roleTitle = document.getElementById('role-title');
+            const roleDescription = document.getElementById('role-description');
+
+            roleTitle.textContent = `Ваша роль: ${getRoleDisplayName(userRole)}`;
+            roleDescription.textContent = getRoleDescription(userRole);
+            roleInfo.style.display = 'block';
+        }
+
+        function updateActionButtons() {
+            const actionButtons = document.getElementById('action-buttons');
+            actionButtons.innerHTML = '';
+
+            if (!gameState || !userRole) return;
+
+            // Добавляем кнопки в зависимости от роли и фазы
+            const actions = getAvailableActions(userRole, gameState.phase);
+            
+            actions.forEach(action => {
+                const button = document.createElement('button');
+                button.className = 'action-btn';
+                button.textContent = action.name;
+                button.onclick = () => performAction(action.type, action.target);
+                actionButtons.appendChild(button);
+            });
+        }
+
+        function initializeProfile() {
+            const avatars = ['👤', '😎', '🤠', '👑', '🎭', '🕵️', '👨‍💼', '👩‍💼', '🧙‍♂️', '🧙‍♀️', 
+                            '🦸‍♂️', '🦸‍♀️', '🧛‍♂️', '🧛‍♀️', '🤖', '👻', '💀', '🎪', '🃏', '🎯'];
+            
+            const avatarGrid = document.getElementById('avatar-grid');
+            avatarGrid.innerHTML = avatars.map(avatar => `
+                <div class="avatar-option ${currentUser && currentUser.avatar === avatar ? 'current' : ''}" 
+                     onclick="changeAvatar('${avatar}')" data-avatar="${avatar}">
+                    ${avatar}
+                </div>
+            `).join('');
+        }
+
+        function initializeShop() {
+            const effects = [
+                { id: 'rainbow', name: '🌈 Радуга', price: 50, description: 'Радужный текст' },
+                { id: 'glow', name: '✨ Свечение', price: 30, description: 'Светящийся текст' },
+                { id: 'shake', name: '🔥 Тряска', price: 25, description: 'Трясущийся текст' },
+                { id: 'bounce', name: '⚡ Прыжки', price: 20, description: 'Прыгающий текст' },
+                { id: 'fade', name: '👻 Исчезновение', price: 15, description: 'Исчезающий текст' },
+                { id: 'fire', name: '🔥 Огонь', price: 75, description: 'Огненный эффект' },
+                { id: 'ice', name: '❄️ Лед', price: 70, description: 'Ледяной эффект' },
+                { id: 'electric', name: '⚡ Молния', price: 80, description: 'Электрический эффект' },
+                { id: 'matrix', name: '💚 Матрица', price: 65, description: 'Эффект матрицы' },
+                { id: 'neon', name: '💜 Неон', price: 85, description: 'Неоновое свечение' },
+                { id: 'gold', name: '👑 Золото', price: 100, description: 'Золотой текст' },
+                { id: 'shadow', name: '🌑 Тень', price: 45, description: 'Теневой эффект' }
+            ];
+
+            updateShopEffects(effects);
+        }
+
+        function updateShopEffects(effects) {
+            const effectsGrid = document.getElementById('nickname-effects');
+            
+            effectsGrid.innerHTML = effects.map(effect => {
+                const owned = currentUser && currentUser.nickname_effects && 
+                            currentUser.nickname_effects.includes(effect.id);
+                const canAfford = currentUser && currentUser.coins >= effect.price;
+                
+                return `
+                    <div class="effect-card ${owned ? 'owned' : ''}">
+                        <div class="effect-name">${effect.name}</div>
+                        <div class="effect-price">💰 ${effect.price}</div>
+                        <button class="buy-btn" 
+                                onclick="buyEffect('${effect.id}')"
+                                ${owned || !canAfford ? 'disabled' : ''}>
+                            ${owned ? 'Куплено' : (canAfford ? 'Купить' : 'Не хватает монет')}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateShop() {
+            // Обновляем отображение магазина с текущими данными пользователя
+            initializeShop();
+        }
+
+        // Функции действий
+        function joinRoom(roomId, hasPassword) {
+            if (hasPassword) {
+                selectedRoomId = roomId;
+                showJoinRoomModal();
+            } else {
+                sendMessage({
+                    type: 'joinRoom',
+                    roomId: roomId
+                });
+            }
+        }
+
+        function leaveRoom() {
+            sendMessage({ type: 'leaveRoom' });
+            currentRoom = null;
+            showSection('lobby');
+        }
+
+        function startGame() {
+            sendMessage({ type: 'startGame' });
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                sendMessage({
+                    type: 'chatMessage',
+                    message: message
+                });
+                input.value = '';
+            }
+        }
+
+        function sendGameChatMessage() {
+            const input = document.getElementById('game-chat-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                sendMessage({
+                    type: 'chatMessage',
+                    message: message
+                });
+                input.value = '';
+            }
+        }
+
+        function changeAvatar(avatar) {
+            sendMessage({
+                type: 'updateAvatar',
+                avatar: avatar
+            });
+        }
+
+        function buyEffect(effectId) {
+            sendMessage({
+                type: 'buyEffect',
+                effect: effectId
+            });
+        }
+
+        function performAction(actionType, target) {
+            sendMessage({
+                type: 'gameAction',
+                action: {
+                    action: actionType,
+                    target: target
+                }
+            });
+        }
+
+        // Модальные окна
+        function showCreateRoomModal() {
+            document.getElementById('create-room-modal').classList.add('active');
+        }
+
+        function hideCreateRoomModal() {
+            document.getElementById('create-room-modal').classList.remove('active');
+        }
+
+        function showJoinRoomModal() {
+            document.getElementById('join-room-modal').classList.add('active');
+        }
+
+        function hideJoinRoomModal() {
+            document.getElementById('join-room-modal').classList.remove('active');
+        }
+
+        function createRoom() {
+            const name = document.getElementById('room-name-input').value.trim();
+            const minPlayers = parseInt(document.getElementById('min-players-input').value);
+            const maxPlayers = parseInt(document.getElementById('max-players-input').value);
+            const password = document.getElementById('room-password-input').value.trim();
+
+            if (!name) {
+                showNotification('Введите название комнаты', 'error');
+                return;
+            }
+
+            if (minPlayers >= maxPlayers) {
+                showNotification('Максимум игроков должен быть больше минимума', 'error');
+                return;
+            }
+
+            sendMessage({
+                type: 'createRoom',
+                room: {
+                    name: name,
+                    minPlayers: minPlayers,
+                    maxPlayers: maxPlayers,
+                    password: password || null,
+                    roles: {
+                        doctor: true,
+                        don: true,
+                        lovers: false
+                    }
+                }
+            });
+
+            hideCreateRoomModal();
+        }
+
+        function joinRoomWithPassword() {
+            const password = document.getElementById('join-room-password').value.trim();
+            
+            if (!password) {
+                showNotification('Введите пароль', 'error');
+                return;
+            }
+
+            sendMessage({
+                type: 'joinRoom',
+                roomId: selectedRoomId,
+                password: password
+            });
+
+            hideJoinRoomModal();
+        }
+
+        // Вспомогательные функции
+        function getRoleDisplayName(role) {
+            const roleNames = {
+                'citizen': 'Мирный житель',
+                'mafia': 'Мафия',
+                'don': 'Дон мафии',
+                'doctor': 'Доктор',
+                'lover1': 'Влюбленный',
+                'lover2': 'Влюбленная'
+            };
+            return roleNames[role] || role;
+        }
+
+        function getRoleDescription(role) {
+            const descriptions = {
+                'citizen': 'Ваша цель - найти и устранить всю мафию. Голосуйте днем за подозрительных игроков.',
+                'mafia': 'Ваша цель - устранить всех мирных жителей. Ночью выбирайте жертву вместе с доном.',
+                'don': 'Вы глава мафии. Ночью выбирайте жертву. Будьте осторожны - вас могут вычислить.',
+                'doctor': 'Ночью вы можете спасти одного игрока от мафии. Не можете лечить себя два раза подряд.',
+                'lover1': 'Вы влюблены. Если ваша пара умрет, вы тоже умрете от горя.',
+                'lover2': 'Вы влюблены. Если ваша пара умрет, вы тоже умрете от горя.'
+            };
+            return descriptions[role] || 'Неизвестная роль';
+        }
+
+        function getPhaseDisplayName(phase) {
+            const phaseNames = {
+                'night': '🌙 Ночь',
+                'day': '☀️ День',
+                'voting': '🗳️ Голосование',
+                'discussion': '💬 Обсуждение'
+            };
+            return phaseNames[phase] || phase;
+        }
+
+        function getAvailableActions(role, phase) {
+            const actions = [];
+            
+            if (phase === 'night') {
+                if (role === 'mafia' || role === 'don') {
+                    actions.push({ name: '🔪 Убить игрока', type: 'kill', target: null });
+                }
+                if (role === 'doctor') {
+                    actions.push({ name: '💊 Лечить игрока', type: 'heal', target: null });
+                }
+            }
+            
+            return actions;
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function showAutoStartTimer(timeLeft, reason) {
+            // Можно добавить отображение таймера автостарта
+            showNotification(`${reason}. Автостарт через ${timeLeft} сек.`, 'info');
+        }
+
+        function hideAutoStartTimer() {
+            // Скрыть таймер автостарта
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Показываем уведомление
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Скрываем через 4 секунды
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 4000);
+        }
+
+        // Ping для поддержания соединения с Анубисом
+        setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                sendMessage({ type: 'ping' });
+            }
+        }, 30000);
+
+        // Обработка закрытия страницы
+        window.addEventListener('beforeunload', function() {
+            if (ws) {
+                ws.close();
+            }
+        });
+    </script>
+</body>
+</html>

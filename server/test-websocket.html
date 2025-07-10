@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .info { background: #e3f2fd; color: #1565c0; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔌 WebSocket Connection Test</h1>
+    
+    <div>
+        <button onclick="testConnection()">🧪 Test Connection</button>
+        <button onclick="clearLogs()">🗑️ Clear Logs</button>
+    </div>
+    
+    <div id="logs"></div>
+
+    <script>
+        let ws = null;
+        
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logs.appendChild(div);
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+        
+        function testConnection() {
+            log('🚀 Начинаем тест WebSocket подключения...', 'info');
+            
+            // Определяем URL
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            
+            log(`🔗 Подключаемся к: ${wsUrl}`, 'info');
+            
+            try {
+                ws = new WebSocket(wsUrl);
+                
+                ws.onopen = function(event) {
+                    log('✅ WebSocket подключение установлено!', 'success');
+                    
+                    // Отправляем тестовое сообщение
+                    const testMessage = {
+                        type: 'ping',
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    log(`📤 Отправляем: ${JSON.stringify(testMessage)}`, 'info');
+                    ws.send(JSON.stringify(testMessage));
+                };
+                
+                ws.onmessage = function(event) {
+                    log(`📥 Получено: ${event.data}`, 'success');
+                    
+                    try {
+                        const data = JSON.parse(event.data);
+                        log(`📋 Parsed: ${JSON.stringify(data, null, 2)}`, 'info');
+                    } catch (e) {
+                        log(`⚠️ Не удалось распарсить JSON: ${e.message}`, 'error');
+                    }
+                };
+                
+                ws.onerror = function(error) {
+                    log(`❌ WebSocket ошибка: ${error}`, 'error');
+                    console.error('WebSocket error:', error);
+                };
+                
+                ws.onclose = function(event) {
+                    log(`🔌 WebSocket закрыт. Код: ${event.code}, Причина: ${event.reason}`, 'error');
+                };
+                
+            } catch (error) {
+                log(`❌ Ошибка создания WebSocket: ${error.message}`, 'error');
+            }
+        }
+        
+        // Автоматический тест при загрузке
+        window.onload = function() {
+            log('🌐 Страница загружена', 'info');
+            log(`🔗 Текущий URL: ${window.location.href}`, 'info');
+            
+            // Тест через 2 секунды
+            setTimeout(testConnection, 2000);
+        };
+    </script>
+</body>
+</html>
